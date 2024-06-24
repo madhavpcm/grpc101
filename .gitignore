@@ -1,5 +1,9 @@
 # Ignore Gradle project-specific cache directory
 .gradle
+# Ignore Neovim undo cache
+.undodir
+# Ignore IntelliJIdea IDE files
+.idea
 
 # Ignore Gradle build output directory
 build

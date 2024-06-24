@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+option java_package = "org.example.grpc";
+option java_outer_classname = "TaskProto";
+
+//Generic Book
+message Book {
+  string isbn = 1;
+  optional string title = 2;
+  repeated string authors = 3;
+  optional int32 page_count = 4;
+}
+
+message BookIdentifier {
+  oneof identifier {
+    int32 book_id =1;
+    string book_isbn = 2;
+  }
+}
+
+//Returns deleted book's ID and status
+message BookResponseGeneric {
+  int32 book_id = 1;
+  string response = 2;
+}
+
+// Expects a book struct
+message BookPutRequest{
+  Book book = 1;
+}
+
+// Expects a valid bookID
+message BookIDRequest {
+  BookIdentifier id = 1;
+}
+
+message BookQueryRequest {
+  BookIdentifier id = 1;
+  repeated int32 fields = 3;
+}
+
+message BookQueryResponse {
+  repeated Book data = 1;
+  string response = 2;
+}
+
+
+
+
+service BookService {
+  rpc AddBook (BookPutRequest) returns (BookResponseGeneric) {}
+  rpc UpdateBook (BookPutRequest) returns (BookResponseGeneric) {}
+  rpc DeleteBook (BookIDRequest) returns (BookResponseGeneric) {}
+  rpc GetBooks (BookQueryRequest) returns (BookQueryResponse) {}
+}
