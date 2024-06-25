@@ -56,4 +56,26 @@ public class Book {
                 ", pageCount=" + pageCount +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Book book = (Book) o;
+
+        if (pageCount != book.pageCount) return false;
+        if (!isbn.equals(book.isbn)) return false;
+        if (!title.equals(book.title)) return false;
+        return authors.equals(book.authors);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = isbn.hashCode();
+        result = 31 * result + title.hashCode();
+        result = 31 * result + authors.hashCode();
+        result = 31 * result + pageCount;
+        return result;
+    }
 }

@@ -31,7 +31,7 @@ public class GRPCClient {
     /**
      *  {@summary This function is the client side interface for the RPC service AddBook}
      * */
-    public void addBook(String isbn, String title, List<String> authors, int page_count) {
+    public int addBook(String isbn, String title, List<String> authors, int page_count) {
         logger.info("Adding book with ISBN" + isbn);
         TaskProto.Book payload = TaskProto.Book.newBuilder()
                 .setIsbn(isbn)
@@ -49,20 +49,21 @@ public class GRPCClient {
             response = blockingStub.addBook(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return -1;
         }
         if(response.getBookId() != -1) {
             logger.info("Add Transaction successful, Received Book ID: " + response.getBookId());
         } else {
             logger.log(Level.WARNING, "Add Transaction failed, Reason: {0}",  response.getResponse());
         }
+        return response.getBookId();
 
     }
     /**
      * {@summary This function is the client side interface for the RPC service AddBook}
      * @param isbn Unique ISBN of the book
      * */
-    public void updateBook(String isbn, String title, List<String> authors, int page_count) {
+    public int updateBook(String isbn, String title, List<String> authors, int page_count) {
         logger.info("Adding book " + isbn+ " ... ");
         TaskProto.Book payload = TaskProto.Book.newBuilder()
                 .setIsbn(isbn)
@@ -80,13 +81,14 @@ public class GRPCClient {
             response = blockingStub.updateBook(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return -1;
         }
         if(response.getBookId() != -1) {
             logger.info("Update Transaction successful, Received Book ID: " + response.getBookId());
         } else {
             logger.log(Level.WARNING, "Update Transaction failed, Reason: {0}",  response.getResponse());
         }
+        return response.getBookId();
 
     }
 
@@ -94,7 +96,7 @@ public class GRPCClient {
      *
      * @param book_id
      */
-    public void deleteBook(int book_id) {
+    public int deleteBook(int book_id) {
         logger.info("Deleting book with bookID : " + book_id+ " ... ");
         TaskProto.BookIdentifier payload = TaskProto.BookIdentifier.newBuilder()
                 .setBookId(book_id)
@@ -109,20 +111,21 @@ public class GRPCClient {
             response = blockingStub.deleteBook(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return -1;
         }
         if(response.getBookId() != -1) {
             logger.info("Delete Transaction successful for Book ID: " + response.getBookId());
         } else {
             logger.log(Level.WARNING, "Delete Transaction failed, Reason: {0}",  response.getResponse());
         }
+        return response.getBookId();
     }
 
     /**
      *
      * @param isbn
      */
-    public void deleteBook(String isbn) {
+    public int deleteBook(String isbn) {
         logger.info("Deleting book with ISBN : " + isbn+ " ... ");
         TaskProto.BookIdentifier payload = TaskProto.BookIdentifier.newBuilder()
                 .setBookIsbn(isbn)
@@ -137,13 +140,14 @@ public class GRPCClient {
             response = blockingStub.deleteBook(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return -1;
         }
         if(response.getBookId() != -1) {
             logger.info("Delete Transaction successful for Book ID: " + response.getBookId());
         } else {
             logger.log(Level.WARNING, "Delete Transaction failed, Reason: {0}",  response.getResponse());
         }
+        return response.getBookId();
     }
 
     /**
@@ -151,7 +155,7 @@ public class GRPCClient {
      * @param book_id
      * @param fields
      */
-    public void getBooks(int book_id, List<Integer> fields) {
+    public Book getBooks(int book_id, List<Integer> fields) {
         logger.info("Getting book with bookId : " + book_id+ " ... ");
         TaskProto.BookIdentifier payload = TaskProto.BookIdentifier.newBuilder()
                 .setBookId(book_id)
@@ -167,14 +171,16 @@ public class GRPCClient {
             response = blockingStub.getBooks(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return null;
         }
         if(response.getDataCount() != 0) {
             logger.info("Got Book:\n" + response.getData(0));
+            TaskProto.Book tb = response.getData(0);
+            return new Book(tb.getIsbn(), tb.getTitle(), tb.getAuthorsList(), tb.getPageCount());
         } else {
             logger.log(Level.WARNING,  response.getResponse());
+            return null;
         }
-
     }
 
     /**
@@ -182,7 +188,7 @@ public class GRPCClient {
      * @param isbn
      * @param fields
      */
-    public void getBooks(String isbn, List<Integer> fields) {
+    public Book getBooks(String isbn, List<Integer> fields) {
         logger.info("Getting book with ISBN : " + isbn+ " ... ");
         TaskProto.BookIdentifier payload = TaskProto.BookIdentifier.newBuilder()
                 .setBookIsbn(isbn)
@@ -198,12 +204,15 @@ public class GRPCClient {
             response = blockingStub.getBooks(request);
         } catch (StatusRuntimeException e) {
             logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-            return;
+            return null;
         }
         if(response.getDataCount() != 0) {
             logger.info("Got Book: %n" + response.getData(0));
+            TaskProto.Book tb = response.getData(0);
+            return new Book(tb.getIsbn(), tb.getTitle(), tb.getAuthorsList(), tb.getPageCount());
         } else {
             logger.log(Level.WARNING,  response.getResponse());
+            return null;
         }
 
     }
