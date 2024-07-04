@@ -15,7 +15,7 @@ import org.example.grpc.TaskProto;
 
 
 public class GRPCServer {
-    private static final DBHandler handler = new DBHandler();
+    private static final DBHandler handler = new DBHandler(new BookRepository());
     private static final Logger logger = Logger.getLogger(GRPCClient.class.getName());
 
     /**
